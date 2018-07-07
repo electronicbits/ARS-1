@@ -84,6 +84,7 @@ def train(env, policy, normalizer, hp):
 
     for step in range(hp.nb_steps):
 
+        #Initializing the pertubations deltas and the positive/negative rewards (using a normal distribution)
         
     
 
