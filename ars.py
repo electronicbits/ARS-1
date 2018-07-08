@@ -83,11 +83,16 @@ def explore(env, normalizer, policy, direction = None, delta = None):
 def train(env, policy, normalizer, hp):
 
     for step in range(hp.nb_steps):
-
         #Initializing the pertubations deltas and the positive/negative rewards (using a normal distribution)
-        
+        deltas = policy.sample_deltas()
+        positive_rewards = [0] * hp.nb_directions
+        negative_rewards = [0] * hp.nb_directions
     
+        # Getting the positive rewards in the positive directions
+        for k in range(hp.nb_directions):
+            positive_rewards[k] = explore(env, normalizer, policy, direction = 'positive', delta = deltas[k])
 
-
+        for k in range(hp.nb_directions):
+            negative_rewards[k] = explore(env, normalizer, policy, direction = 'negative', delta = deltas[k])
         
         
