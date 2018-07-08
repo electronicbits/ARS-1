@@ -11,7 +11,7 @@ class Hp():
         self.nb_steps = 1000
         self.episode_length = 1000 
         self.learning_rate = 0.02
-        self.nb_directions = 16# protubations - or whatever these guys call this
+        self.nb_directions = 16 # pertubations
         self.nb_best_directions = 16
         assert self.nb_best_directions <= self.nb_directions
         self.noise = 0.03
@@ -92,7 +92,22 @@ def train(env, policy, normalizer, hp):
         for k in range(hp.nb_directions):
             positive_rewards[k] = explore(env, normalizer, policy, direction = 'positive', delta = deltas[k])
 
+        # Getting the negative rewards in the negative directions
         for k in range(hp.nb_directions):
             negative_rewards[k] = explore(env, normalizer, policy, direction = 'negative', delta = deltas[k])
         
-        
+        #Gathering all the positive/negative rewards to compute the standard deviation of these rewards
+        all_rewards = np.array(positive_rewards + negative_rewards)
+        sigma_r = all_rewards.std()
+
+        #Sorting the rollouts by the max(r_pos, r_neg) and selecting the best directions
+        scores = {k:max(r_pos, r_neg) for k, (r_pos, r_neg) in enumerate(zip(positive_rewards, negative_rewards))}
+        order = sorted(scores.keys(), key = lambda x:scores[x]) [0:hp.nb_best_directions] # we don't need to specify 0 (lower bound of range)
+        rollouts = [(positive_rewards[k], negative_rewards[k], deltas(k)) for k in order]
+
+        #Updating our policy
+        policy.update(rollouts, sigma_r)
+
+        #Printing the final reward of the policy after the update
+        reward_evaluation = explore(env, normalizer, policy)
+        print('Step: ', step, 'Reward: ', reward_evaluation)
