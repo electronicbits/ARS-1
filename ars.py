@@ -111,3 +111,11 @@ def train(env, policy, normalizer, hp):
         #Printing the final reward of the policy after the update
         reward_evaluation = explore(env, normalizer, policy)
         print('Step: ', step, 'Reward: ', reward_evaluation)
+
+def mkdir(base, name):
+    path = os.path.join(base, name)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+work_dir = mkdir('exp', 'brs')
+monitor_dir = mkdir(work_dir, 'monitor')
