@@ -3,6 +3,9 @@
 #importing the libraries
 import os
 import numpy as np
+import gym
+from gym import wrappers
+
 
 # Setting the hyper parameters
 
@@ -16,7 +19,7 @@ class Hp():
         assert self.nb_best_directions <= self.nb_directions
         self.noise = 0.03
         self.seed = 1
-        self.env_name = ''
+        self.env_name = 'HalfCheetahBulletEnv-v0'
 
 #Normalizing the states
 class Normalizer():
@@ -119,3 +122,15 @@ def mkdir(base, name):
     return path
 work_dir = mkdir('exp', 'brs')
 monitor_dir = mkdir(work_dir, 'monitor')
+
+hp = Hp()
+np.random.seed(hp.seed)
+env = gym.make(hp.env_name)
+env = wrappers.Monitor(env, monitor_dir, force = True)
+nb_inputs = env.observation_space.shape[0]
+nb_outputs = env.action_space.shape[0]
+policy = Policy(nb_inputs, nb_outputs)
+normalizer = Normalizer(nb_inputs)
+train(env, policy, normalizer, hp)
+
+
